@@ -40,3 +40,16 @@ class ColumnTypes(Enum):
     VOTE = "vote"  # Vote on an item e.g. pick a new feature or a favorite lunch place
     WEEK = "week"  # Select the week on which each item should be completed
     WORLD_CLOCK = "world_clock"  # Keep track of the time anywhere in the world
+
+
+class BoardKind(Enum):
+    PUBLIC = "public"
+    PRIVATE = "private"
+    SHARE = "share"
+
+
+class BoardState(Enum):
+    ALL = "all"
+    ACTIVE = "active"
+    ARCHIVED = "archived"
+    DELETED = "deleted"
