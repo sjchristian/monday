@@ -1,19 +1,19 @@
 import json
-from monday.resources.types import DuplicateTypes
+from typing import Dict, Any
 
+from monday.resources.types import DuplicateTypes, ColumnTypes
 from monday.utils import monday_json_stringify
 
 
 # Eventually I will organize this file better but you know what today is not that day.
 
 # ITEM RESOURCE QUERIES
-def mutate_item_query(board_id, group_id, item_name, column_values,
-                      create_labels_if_missing):
+def mutate_item_query(board_id, group_id, item_name, column_values, create_labels_if_missing):
     # Monday does not allow passing through non-JSON null values here,
     # so if you choose not to specify column values, need to set column_values to empty object.
     column_values = column_values if column_values else {}
 
-    query = '''mutation
+    query = """mutation
     {
         create_item (
             board_id: %s,
@@ -24,17 +24,21 @@ def mutate_item_query(board_id, group_id, item_name, column_values,
         ) {
             id
         }
-    }''' % (board_id, group_id, item_name, monday_json_stringify(column_values),
-            str(create_labels_if_missing).lower())
+    }""" % (
+        board_id,
+        group_id,
+        item_name,
+        monday_json_stringify(column_values),
+        str(create_labels_if_missing).lower(),
+    )
 
     return query
 
 
-def mutate_subitem_query(parent_item_id, subitem_name, column_values,
-                         create_labels_if_missing):
+def mutate_subitem_query(parent_item_id, subitem_name, column_values, create_labels_if_missing):
     column_values = column_values if column_values else {}
 
-    return '''mutation
+    return """mutation
     {
         create_subitem (
             parent_item_id: %s,
@@ -53,12 +57,16 @@ def mutate_subitem_query(parent_item_id, subitem_name, column_values,
                 name
             }
         }
-    }''' % (parent_item_id, subitem_name, monday_json_stringify(column_values),
-            str(create_labels_if_missing).lower())
+    }""" % (
+        parent_item_id,
+        subitem_name,
+        monday_json_stringify(column_values),
+        str(create_labels_if_missing).lower(),
+    )
 
 
 def get_item_query(board_id, column_id, value):
-    query = '''query
+    query = """query
         {
             items_by_column_values(
                 board_id: %s,
@@ -81,13 +89,18 @@ def get_item_query(board_id, column_id, value):
                     value
                 }
             }
-        }''' % (board_id, column_id, value)
+        }""" % (
+        board_id,
+        column_id,
+        value,
+    )
 
     return query
 
 
 def get_item_by_id_query(ids):
-    query = '''query
+    query = (
+        """query
         {
             items (ids: %s) {
                 name,
@@ -101,13 +114,15 @@ def get_item_by_id_query(ids):
                     value
                 }
             }
-        }''' % ids
+        }"""
+        % ids
+    )
 
     return query
 
 
 def update_item_query(board_id, item_id, column_id, value):
-    query = '''mutation
+    query = """mutation
         {
             change_column_value(
                 board_id: %s,
@@ -123,20 +138,27 @@ def update_item_query(board_id, item_id, column_id, value):
                     value
                 }
             }
-        }''' % (board_id, item_id, column_id, monday_json_stringify(value))
+        }""" % (
+        board_id,
+        item_id,
+        column_id,
+        monday_json_stringify(value),
+    )
 
     return query
 
 
 def delete_item_query(item_id):
-    query = '''
+    query = """
     mutation
     {
         delete_item (item_id: %s)
         {
             id
         }
-    }''' % (item_id)
+    }""" % (
+        item_id
+    )
     return query
 
 
@@ -190,7 +212,8 @@ def create_column(
 
 
 def get_columns_by_board_query(board_ids):
-    return '''query
+    return (
+        """query
         {
             boards(ids: %s) {
                 id
@@ -206,11 +229,13 @@ def get_columns_by_board_query(board_ids):
                     settings_str
                  }
             }
-        }''' % board_ids
+        }"""
+        % board_ids
+    )
 
 
 def update_multiple_column_values_query(board_id, item_id, column_values, create_labels_if_missing):
-    query = '''mutation
+    query = """mutation
         {
             change_multiple_column_values (
                 board_id: %s,
@@ -225,13 +250,18 @@ def update_multiple_column_values_query(board_id, item_id, column_values, create
                   text
                 }
             }
-        }''' % (board_id, item_id, monday_json_stringify(column_values), str(create_labels_if_missing).lower())
+        }""" % (
+        board_id,
+        item_id,
+        monday_json_stringify(column_values),
+        str(create_labels_if_missing).lower(),
+    )
 
     return query
 
 
 def add_file_to_column_query(item_id, column_id):
-    query = '''mutation ($file: File!) {
+    query = """mutation ($file: File!) {
         add_file_to_column (
             file: $file,
             item_id: %s,
@@ -239,13 +269,16 @@ def add_file_to_column_query(item_id, column_id):
         ) {
             id
         }
-    }''' % (item_id, column_id)
+    }""" % (
+        item_id,
+        column_id,
+    )
     return query
 
 
 # UPDATE RESOURCE QUERIES
 def create_update_query(item_id, update_value):
-    query = '''mutation
+    query = """mutation
         {
             create_update(
                 item_id: %s,
@@ -253,7 +286,10 @@ def create_update_query(item_id, update_value):
             ) {
                 id
             }
-        }''' % (item_id, json.dumps(update_value))
+        }""" % (
+        item_id,
+        json.dumps(update_value),
+    )
 
     return query
 
@@ -271,7 +307,7 @@ def delete_update_query(item_id):
 
 
 def get_updates_for_item_query(board, item, limit):
-    query = '''query 
+    query = """query 
     {boards (ids: %s) 
         {items (ids: %s) {
             updates (limit: %s) {
@@ -305,13 +341,17 @@ def get_updates_for_item_query(board, item, limit):
                 }
             }
         }
-    }''' % (board, item, limit)
+    }""" % (
+        board,
+        item,
+        limit,
+    )
 
     return query
 
 
 def get_update_query(limit, page):
-    query = '''query
+    query = """query
         {
             updates (
                 limit: %s,
@@ -320,7 +360,10 @@ def get_update_query(limit, page):
                 id,
                 body
             }
-        }''' % (limit, page if page else 1)
+        }""" % (
+        limit,
+        page if page else 1,
+    )
 
     return query
 
@@ -330,21 +373,25 @@ def get_tags_query(tags):
     if tags is None:
         tags = []
 
-    query = '''query
+    query = (
+        """query
         {
             tags (ids: %s) {
                 name,
                 color,
                 id
             }
-        }''' % tags
+        }"""
+        % tags
+    )
 
     return query
 
 
 # BOARD RESOURCE QUERIES
 def get_board_items_query(board_id):
-    query = '''query
+    query = (
+        """query
     {
         boards(ids: %s) {
             name
@@ -363,13 +410,15 @@ def get_board_items_query(board_id):
                 }
             }
         }
-    }''' % board_id
+    }"""
+        % board_id
+    )
 
     return query
 
 
 def get_boards_query(**kwargs):
-    query = '''query
+    query = """query
     {
         boards (%s) {
             id
@@ -389,12 +438,15 @@ def get_boards_query(**kwargs):
                 type
             }
         }
-    }''' % ', '.join(["%s: %s" % (arg, kwargs.get(arg)) for arg in kwargs])
+    }""" % ", ".join(
+        ["%s: %s" % (arg, kwargs.get(arg)) for arg in kwargs]
+    )
     return query
 
 
 def get_boards_by_id_query(board_ids):
-    return '''query
+    return (
+        """query
     {
         boards (ids: %s) {
             id
@@ -415,7 +467,9 @@ def get_boards_by_id_query(board_ids):
                 settings_str
             }
         }
-    }''' % board_ids
+    }"""
+        % board_ids
+    )
 
 
 def duplicate_board_query(
@@ -457,6 +511,7 @@ def duplicate_board_query(
 
     return query
 
+
 def duplicate_board_query(board_id: int, duplicate_type: DuplicateTypes):
     query = """
     mutation {
@@ -473,21 +528,25 @@ def duplicate_board_query(board_id: int, duplicate_type: DuplicateTypes):
     return query
 
 
-def create_board_by_workspace_query(board_name, board_kind, workspace_id = None):
-    workspace_query = f'workspace_id: {workspace_id}' if workspace_id else ''
-    query = '''
+def create_board_by_workspace_query(board_name, board_kind, workspace_id=None):
+    workspace_query = f"workspace_id: {workspace_id}" if workspace_id else ""
+    query = """
     mutation {
         create_board (board_name:"%s", board_kind: %s, %s) {
             id
         }
     }
-    ''' % (board_name, board_kind, workspace_query)
+    """ % (
+        board_name,
+        board_kind,
+        workspace_query,
+    )
     return query
 
 
 # USER RESOURCE QUERIES
 def get_users_query(**kwargs):
-    query = '''query
+    query = """query
     {
         users (%s) {
             id
@@ -499,13 +558,16 @@ def get_users_query(**kwargs):
               name
             }
         }
-    }''' % ', '.join(["%s: %s" % (arg, kwargs.get(arg)) for arg in kwargs])
+    }""" % ", ".join(
+        ["%s: %s" % (arg, kwargs.get(arg)) for arg in kwargs]
+    )
     return query
 
 
 # GROUP RESOURCE QUERIES
 def get_groups_by_board_query(board_ids):
-    query = '''query
+    query = (
+        """query
     {
         boards(ids: %s) {
             groups {
@@ -516,12 +578,14 @@ def get_groups_by_board_query(board_ids):
                 color
             }
         }
-    }''' % board_ids
+    }"""
+        % board_ids
+    )
     return query
 
 
 def get_items_by_group_query(board_id, group_id):
-    query = '''query
+    query = """query
     {
         boards(ids: %s) {
             groups(ids: "%s") {
@@ -533,36 +597,45 @@ def get_items_by_group_query(board_id, group_id):
                 }
             }
         }
-    }''' % (board_id, group_id)
+    }""" % (
+        board_id,
+        group_id,
+    )
     return query
 
 
 def create_group_query(board_id, group_name):
-    query = '''
+    query = """
     mutation
     {
         create_group(board_id: %s, group_name: "%s")
         {
             id
         }
-    }''' % (board_id, group_name)
+    }""" % (
+        board_id,
+        group_name,
+    )
     return query
 
 
 def duplicate_group_query(board_id, group_id):
-    query = '''
+    query = """
     mutation
     {
         duplicate_group(board_id: %s, group_id: "%s")
         {
             id
         }
-    }''' % (board_id, group_id)
+    }""" % (
+        board_id,
+        group_id,
+    )
     return query
 
 
 def archive_group_query(board_id, group_id):
-    query = '''
+    query = """
     mutation
     {
         archive_group(board_id: %s, group_id: "%s")
@@ -570,12 +643,15 @@ def archive_group_query(board_id, group_id):
             id
             archived
         }
-    }''' % (board_id, group_id)
+    }""" % (
+        board_id,
+        group_id,
+    )
     return query
 
 
 def delete_group_query(board_id, group_id):
-    query = '''
+    query = """
     mutation
     {
         delete_group(board_id: %s, group_id: "%s")
@@ -583,25 +659,28 @@ def delete_group_query(board_id, group_id):
             id
             deleted
         }
-    }''' % (board_id, group_id)
+    }""" % (
+        board_id,
+        group_id,
+    )
     return query
 
 
 def get_complexity_query():
-    query = '''
+    query = """
     query
     {
         complexity {
             after,
             reset_in_x_seconds
         }
-    }'''
+    }"""
 
     return query
 
 
 def get_workspaces_query():
-    query = '''
+    query = """
     query {
         boards {
             workspace {
@@ -612,68 +691,85 @@ def get_workspaces_query():
             }
         }
     }
-    '''
+    """
     return query
 
 
 def create_workspace_query(name, kind, description=""):
-    query = '''
+    query = """
     mutation {
         create_workspace (name:"%s", kind: %s, description: "%s") {
             id
             description
         }
     }
-    ''' % (name, kind, description)
+    """ % (
+        name,
+        kind,
+        description,
+    )
     return query
 
 
 def add_users_to_workspace_query(id, user_ids, kind):
-    query = '''
+    query = """
     mutation {
         add_users_to_workspace (workspace_id: %s, user_ids: %s, kind: %s) {
             id
         }
     }
-    ''' % (id, user_ids, kind)
+    """ % (
+        id,
+        user_ids,
+        kind,
+    )
     return query
 
 
 def delete_users_from_workspace_query(id, user_ids):
-    query = '''
+    query = """
     mutation {
         add_users_to_workspace (workspace_id: %s, user_ids: %s) {
             id
         }
     }
-    ''' % (id, user_ids)
+    """ % (
+        id,
+        user_ids,
+    )
     return query
 
 
 def add_teams_to_workspace_query(id, team_ids):
-    query = '''
+    query = """
     mutation {
         add_teams_to_workspace (workspace_id: %s, team_ids: %s) {
             id
         }
     }
-    ''' % (id, team_ids)
+    """ % (
+        id,
+        team_ids,
+    )
     return query
 
 
 def delete_teams_from_workspace_query(id, team_ids):
-    query = '''
+    query = """
     mutation {
         delete_teams_from_workspace (workspace_id: %s, team_ids: %s) {
             id
         }
     }
-    ''' % (id, team_ids)
+    """ % (
+        id,
+        team_ids,
+    )
     return query
 
 
 def create_notification_query(user_id, target_id, text, target_type):
-    query = '''
+    query = """
     mutation {
         create_notification (user_id: %s, target_id: %s, text: "%s", target_type: %s) {
             text
@@ -682,7 +778,12 @@ def create_notification_query(user_id, target_id, text, target_type):
             target_type
         }
     }
-    ''' % (user_id, target_id, text, target_type)
+    """ % (
+        user_id,
+        target_id,
+        text,
+        target_type,
+    )
     # Target type may be: Project/Post
     return query
 
@@ -725,4 +826,3 @@ def get_me_query():
         }
     }"""
     return query
-
