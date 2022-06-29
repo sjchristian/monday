@@ -14,5 +14,7 @@ class ColumnsResource(BaseResource):
         return self.client.execute(query)
 
     def update_multiple_columns(self, item_id, board_id, column_values):
-        query = update_multiple_column_values_query(item_id, board_id, column_values)
+        query = update_multiple_column_values_query(
+            item_id=item_id, board_id=board_id, column_values=column_values, create_labels_if_missing=False
+        )
         return self.client.execute(query)
