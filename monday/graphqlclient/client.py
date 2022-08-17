@@ -46,5 +46,9 @@ class GraphQLClient:
             raise ex
 
     def _catch_error(self, response):
-        if 'errors' in response.json():
-            raise MondayQueryError(response.json()['errors'][0]['message'])
+        if "errors" in response.json():
+            try:
+                raise MondayQueryError(response.json()["errors"][0]["message"])
+            except TypeError:
+                # Got a case where the error message wasn't under "message" but just as the list single element
+                raise MondayQueryError(response.json()["errors"][0])
