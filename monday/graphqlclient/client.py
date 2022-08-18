@@ -52,3 +52,10 @@ class GraphQLClient:
             except TypeError:
                 # Got a case where the error message wasn't under "message" but just as the list single element
                 raise MondayQueryError(response.json()["errors"][0])
+
+        if "error_code" in response.json():
+            try:
+                message = f'MESSAGE: {response.json()["error_message"]}. ERROR_DATA: {response.json()["error_data"]}.'
+                raise MondayQueryError(message)
+            except:
+                raise MondayQueryError(response.json())
